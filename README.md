@@ -1,3 +1,6 @@
+![security_scan](https://github.com/<org>/<repo>/actions/workflows/security_scan.yml/badge.svg)
+
+
 # PF Techacker – Web Security Scanner
 
 Ferramenta simples de avaliação de segurança para aplicações web. O foco principal é automação via CLI, integração opcional com scanners externos e geração automática de relatórios em JSON, CSV e Markdown.
