@@ -141,11 +141,6 @@ Executar com ferramentas auxiliares (nikto + nmap):
 python -m src.scanner -t http://testphp.vulnweb.com --nikto --nmap --json-stdout
 ```
 
-## Exemplo real usado no desenvolvimento (Juice Shop demo):
-
-```bash
-python -m src.scanner -t https://demo.owasp-juice.shop --nikto --nmap --json-stdout
-```
 ## Exemplo de comando com ajustes de tempo completo
 
 ```bash
@@ -160,6 +155,21 @@ python -m src.scanner \
   --nmap-maxtime 0 \
   --request-timeout 8 \
   --out out-fulltime
+```
+## Exemplo de comando com limite de tempo (4 minutos)
+
+```bash
+python -m src.scanner \
+  -t https://demo.owasp-juice.shop \
+  --crawl-depth 1 \
+  --nikto \
+  --nmap \
+  --fancy-progress \
+  --max-scan-seconds 240 \
+  --nikto-maxtime 120 \
+  --nmap-maxtime 120 \
+  --request-timeout 8 \
+  --out out-teste4Minutos
 ```
 
 Opções úteis:
@@ -217,8 +227,8 @@ Obtivemos uma lista de vulnerabilidades encontradas, incluindo, por exemplo, a v
 
 ## Perfis de execução (tempo limitado x completo)
 
-* Tempo limitado (3 min – demonstração)
-	•	--max-scan-seconds 180 (orçamento total).
+* Tempo limitado (4 min – demonstração)
+	•	--max-scan-seconds 240 (orçamento total).
 	•	Fatias por integração: --nikto-maxtime e --nmap-maxtime.
 	•	Request timeout: controla cada requisição do core.
 
