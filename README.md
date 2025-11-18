@@ -156,8 +156,10 @@ python -m src.scanner \
   --nmap \
   --fancy-progress \
   --max-scan-seconds 0 \
+  --nikto-maxtime 0 \
+  --nmap-maxtime 0 \
   --request-timeout 8 \
-  --out out
+  --out out-fulltime
 ```
 
 Opções úteis:
