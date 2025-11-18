@@ -1,43 +1,40 @@
-![security_scan](https://github.com/<org>/<repo>/actions/workflows/security_scan.yml/badge.svg)
-
-
 # PF Techacker – Web Security Scanner
 
-Ferramenta simples de avaliação de segurança para aplicações web. O foco principal é automação via CLI, integração opcional com scanners externos e geração automática de relatórios em JSON, CSV e Markdown.
+Ferramenta de avaliação de segurança para aplicações web. O foco principal é automação via CLI, integração opcional com scanners externos e geração automática de relatórios em JSON, CSV e Markdown.
 
 ## O que a ferramenta faz
 
 1) **Varre uma URL** e executa checagens “core” (nativas em Python):
-- **Security headers ausentes** (A05)  
-  `HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy`
-- **Arquivos/diretórios sensíveis** (A05)  
-  `/.git/HEAD, /.env, /config.php, /backup.zip, /admin/` etc.
-- **Directory Traversal / LFI** (A05/A03)  
-  Variações de `../../etc/passwd` + URL-encode.
-- **XSS refletido** (A03)  
-  Payloads `<script>alert(1)</script>`, `onerror=`, `svg onload`, etc.
-- **SQL Injection (possível)** (A03)  
-  Payloads boolean/time-based multi-SGBD + heurística de erro/500.
-- **CSRF suspeito** (A01/A07)  
-  Formulários `POST` sem token característico.
-- **Command Injection (possível)** (A03)  
-  Payloads de conteúdo (`;id`) e time-based (atraso ~2s).
+  - **Security headers ausentes** (A05)  
+  `Strict-Transport-Security, Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy`
+  - **Arquivos/diretórios sensíveis** (A01/A05)  
+    Exemplos: `/.git/HEAD`, `/.env`, `/config.php`, `/backup.zip`, `/admin/`
+  - **Directory Traversal / LFI** (A01, possivelmente A05)  
+    Variações de `../../etc/passwd` + URL-encode.
+  - **XSS refletido** (A03)  
+    Payloads como `<script>alert(1)</script>`, `onerror=`, `svg onload`, etc.
+  - **SQL Injection (possível)** (A03)  
+    Payloads boolean/time-based multi-SGBD + heurística de erro/HTTP 500.
+  - **CSRF suspeito** (A01 — e em alguns casos relacionado a A07)  
+    Formulários `POST` sem token característico.
+  - **Command Injection (possível)** (A03)  
+    Payloads de conteúdo (`;id`) e time-based (atraso consistente).
 
 2) **Integra ferramentas open source**:
-- **Nikto** (checagens HTTP do servidor).
-- **Nmap** (enumeração web via scripts NSE básicos).
+  - **Nikto** (checagens HTTP do servidor).
+  - **Nmap** (enumeração web via scripts NSE básicos).
 
 3) **Gera relatórios** com:
-- Severidade (`high/medium/low`),
-- **OWASP code** (A01–A10) **+ descrição curta** (inglês),
-- **Mitigação sugerida** específica por tipo de achado.
+  - Severidade (`high/medium/low`),
+  - **OWASP code** (A01–A10)  ,
+  - **Mitigação sugerida** específica por tipo de achado.
 
-4) **Progresso visual** no terminal (barra + relógio fluido).
+4) **Progresso visual** no terminal (barra de progresso + relógio).
 
-## Estrutura do projeto (resumo)
+## Estrutura do projeto
 
 ```
-/github/workflows
+.github/workflows
 └── security_scan.yml
 /src
   ├── scanner.py               # CLI principal (checks + integrações)
@@ -51,13 +48,15 @@ Ferramenta simples de avaliação de segurança para aplicações web. O foco pr
   ├── report.json     
   └── report.md
 
-/docs
+/docs                          # diagrama de arquitetura e fluxograma
   ├── architecture_diagram.png
   └── flowchart.png
 README.md
 requirements.txt
 ```
-**Arquitetura **  
+
+## Arquitetura
+
 O `scanner.py`:
 1. coleta parâmetros e faz **crawl leve** (controlável),  
 2. executa os **detectores core**,  
@@ -76,13 +75,24 @@ Cada arquivo contém os campos principais: `time`, `type`, `severity`, `url`, `p
 
 ## Cobertura (mapeamento OWASP)
 
-O projeto cobre, entre outros, itens relacionados às OWASP Top 10:
+- **A03 – Injection:** SQLi, XSS refletido, Command Injection
+- **A01 – Broken Access Control (principal) / A05 – Security Misconfiguration (possível):** Directory Traversal / LFI
+- **A05 – Security Misconfiguration:** Headers de segurança ausentes, exposição de arquivos/diretórios sensíveis
+- **A01 (e às vezes relacionado a A07):** CSRF (suspeita) em formulários sem token
 
-- A03 (Injection): SQLi e Command Injection (possíveis)
-- A03 (Injection/XSS): XSS refletido
-- A01/A05: Directory Traversal / LFI e exposição de arquivos sensíveis
-- A05: Security Misconfiguration (headers ausentes)
-- CSRF (suspeita): formulários POST sem token aparente
+### OWASP Top 10 (2021) — quick reference
+| Code | Name                               |
+|------|------------------------------------|
+| A01  | Broken Access Control              |
+| A02  | Cryptographic Failures             |
+| A03  | Injection                          |
+| A04  | Insecure Design                    |
+| A05  | Security Misconfiguration          |
+| A06  | Vulnerable and Outdated Components |
+| A07  | Identification and Auth Failures   |
+| A08  | Software and Data Integrity Fail.  |
+| A09  | Security Logging and Monitoring    |
+| A10  | Server-Side Request Forgery (SSRF) |
 
 ---
 
@@ -116,21 +126,20 @@ pip install -r requirements.txt
 Uso mínimo (verificações internas):
 
 ```bash
-python src/scanner.py -t http://testphp.vulnweb.com
+python -m src.scanner -t http://testphp.vulnweb.com
 ```
 
 Exibir JSON no stdout (útil para CI/avaliação automática):
 
 ```bash
-python src/scanner.py -t http://testphp.vulnweb.com --json-stdout
+python -m src.scanner -t http://testphp.vulnweb.com --json-stdout
 ```
 
 Executar com ferramentas auxiliares (nikto + nmap):
 
 ```bash
-python src/scanner.py -t http://testphp.vulnweb.com --nikto --nmap --json-stdout
+python -m src.scanner -t http://testphp.vulnweb.com --nikto --nmap --json-stdout
 ```
-
 
 ## Exemplo real usado no desenvolvimento (Juice Shop demo):
 
@@ -166,12 +175,12 @@ Opções úteis:
 
 Observação importante sobre timeouts e cobertura de detecção
 
-O scanner tem vários temporizadores configuráveis. Ajustar esses valores altera a quantidade e a qualidade dos achados:
+  O scanner tem vários temporizadores configuráveis. Ajustar esses valores altera a quantidade e a qualidade dos achados:
 
-- Timeout/request curto (ex.: `--request-timeout 2`) torna as requisições mais rápidas, mas aumenta falsos-negativos — a ferramenta poderá não detectar vulnerabilidades que exigem respostas lentas ou tentativas adicionais.
-- Timeout/request maior (ex.: `--request-timeout 10` e `--max-scan-seconds 300`) aumenta a cobertura e a chance de detectar vulnerabilidades, mas também aumenta o tempo total da execução.
+  - Timeout/request curto (ex.: `--request-timeout 2`) torna as requisições mais rápidas, mas aumenta falsos-negativos — a ferramenta poderá não detectar vulnerabilidades que exigem respostas lentas ou tentativas adicionais.
+  - Timeout/request maior (ex.: `--request-timeout 10` e `--max-scan-seconds 300`) aumenta a cobertura e a chance de detectar vulnerabilidades, mas também aumenta o tempo total da execução.
 
-Em resumo: quanto menor o tempo, mais rápido o scan e menor a cobertura; quanto maior o tempo, mais completo (mas mais lento).
+  Em resumo: quanto menor o tempo, mais rápido o scan e menor a cobertura; quanto maior o tempo, mais completo (mas mais lento).
 
 
 ### Exemplo de resultado (lista de vulnerabilidades) - Caso teste
@@ -187,7 +196,7 @@ python -m src.scanner \
   --request-timeout 8
 ```
 
-Obtivemos uma lista de vulnerabilidades encontradas, incluindo, por exemplo, a vulnerabilidade abaixo de Security Misconfiguration (A05) relacionadas a cabeçalhos de segurança ausentes.:
+Obtivemos uma lista de vulnerabilidades encontradas, incluindo, por exemplo, a vulnerabilidade abaixo de Security Misconfiguration (A05) relacionadas a cabeçalhos de segurança ausentes:
 
 ```bash
 {
@@ -204,6 +213,34 @@ Obtivemos uma lista de vulnerabilidades encontradas, incluindo, por exemplo, a v
   }
 ```
 
+## Perfis de execução (tempo limitado x completo)
+
+* Tempo limitado (3 min – demonstração)
+	•	--max-scan-seconds 180 (orçamento total).
+	•	Fatias por integração: --nikto-maxtime e --nmap-maxtime.
+	•	Request timeout: controla cada requisição do core.
+
+* Tempo ilimitado (exploração mais profunda)
+	•	--max-scan-seconds 0 (sem corte global).
+	•	Requests e integrações continuam limitados por seus próprios timeouts.
+
+* Dicas de performance
+	•	Reduza --crawl-depth e --max-pages para priorizar integrações.
+	•	Use --params para focar em poucos parâmetros (ex.: --params q id email).
+	•	Ajuste --request-timeout conforme a latência do alvo.
+
+
+* Integrações (Nikto & Nmap)
+	•	Nikto
+	•	Executado com -maxtime e leitura streaming para manter o relógio fluido.
+	•	Log salvo em nikto.txt; achados relevantes agregados ao relatório (metadados filtrados).
+	•	Nmap
+	•	Comando: -Pn -p 80,443 --script http-enum,http-config-backup.
+	•	Tempo controlado externamente; log salvo em nmap.txt e achados agregados.
+
+Se o orçamento acabar antes, uma integração pode ser pulada — os relatórios deixam claro o que foi executado.
+
+---
 
 ## Metodologia de testes
 
@@ -250,35 +287,12 @@ Cada vulnerabilidade reportada traz um campo `solution` com recomendações espe
 
 ---
 
-## Perfis de execução (tempo limitado x completo)
+# Diagrama 
 
-* Tempo limitado (3 min – demonstração)
-	•	--max-scan-seconds 180 (orçamento total).
-	•	Fatias por integração: --nikto-maxtime e --nmap-maxtime.
-	•	Request timeout: controla cada requisição do core.
+![Diagrama](docs/architecture_diagram.png)
 
-* Tempo ilimitado (exploração mais profunda)
-	•	--max-scan-seconds 0 (sem corte global).
-	•	Requests e integrações continuam limitados por seus próprios timeouts.
+# Fluxograma
 
-* Dicas de performance
-	•	Reduza --crawl-depth e --max-pages para priorizar integrações.
-	•	Use --params para focar em poucos parâmetros (ex.: --params q id email).
-	•	Ajuste --request-timeout conforme a latência do alvo.
+![fluxograma](docs/flowchart.png)
 
----
-
-* Integrações (Nikto & Nmap)
-	•	Nikto
-	•	Executado com -maxtime e leitura streaming para manter o relógio fluido.
-	•	Log salvo em nikto.txt; achados relevantes agregados ao relatório (metadados filtrados).
-	•	Nmap
-	•	Comando: -Pn -p 80,443 --script http-enum,http-config-backup.
-	•	Tempo controlado externamente; log salvo em nmap.txt e achados agregados.
-
-Se o orçamento acabar antes, uma integração pode ser pulada — os relatórios deixam claro o que foi executado.
-
----
-
-
-
+# Link para vídeo

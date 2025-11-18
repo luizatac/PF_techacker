@@ -1,16 +1,37 @@
 name: security_scan
 
-on: [push]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   scan:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-      - name: Run scan (3min balanced)
+
+      - name: Criar venv e instalar dependências
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Instalar Nikto e Nmap (integração externa)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nikto nmap
+
+      - name: Rodar scan (CI sempre verde, mesmo com vulnerabilidades)
+        continue-on-error: true
         run: |
           source .venv/bin/activate
           python -m src.scanner -t https://demo.owasp-juice.shop \
@@ -20,3 +41,12 @@ jobs:
             --nmap  --nmap-maxtime 45 \
             --max-scan-seconds 180 \
             --out out
+          echo "Exit code do scanner = $?"
+
+      - name: Upload dos relatórios gerados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: websec-reports
+          path: out/**
+          if-no-files-found: warn
