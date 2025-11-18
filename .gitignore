@@ -1,0 +1,58 @@
+# === Python básico ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.build/
+dist/
+build/
+pip-wheel-metadata/
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+
+# Testes / cobertura
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Tipagem / lint
+.mypy_cache/
+.pytype/
+.pyre/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+
+# Relatórios específicos gerados por integrações
+# (não versionar outputs de cada execução)
+**/nikto.txt
+**/nmap.txt
+**/nmap_error.txt
+
+
+# Se você gerar dumps temporários
+tmp/
+*.tmp
+
+# Segredos (apenas por segurança – não use .env no webroot)
+.env
+.env.*

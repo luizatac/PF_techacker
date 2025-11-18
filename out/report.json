@@ -1,0 +1,110 @@
+[
+  {
+    "time": "2025-11-17T17:34:28.357185Z",
+    "type": "Security Headers ausentes",
+    "severity": "medium",
+    "url": "https://demo.owasp-juice.shop",
+    "param": "",
+    "evidence": "strict-transport-security, content-security-policy, referrer-policy, permissions-policy",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Enable HSTS (e.g., max-age>=15552000; includeSubDomains; preload). Force HTTPS at the edge/load balancer and remove HTTP endpoints.; Define a restrictive CSP (e.g., default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'). Avoid inline scripts or use nonces/hashes; audit third-party domains.; Adopt a strict Referrer-Policy (e.g., no-referrer or strict-origin-when-cross-origin) to minimize data leakage.; Use Permissions-Policy to disable unused browser features (e.g., geolocation=(), camera=(), microphone=())."
+  },
+  {
+    "time": "2025-11-17T17:34:29.285273Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "high",
+    "url": "https://demo.owasp-juice.shop/.git/HEAD",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:30.275057Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "high",
+    "url": "https://demo.owasp-juice.shop/.env",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:31.131838Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "high",
+    "url": "https://demo.owasp-juice.shop/config.php",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:32.051870Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "high",
+    "url": "https://demo.owasp-juice.shop/backup.zip",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:33.613284Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "medium",
+    "url": "https://demo.owasp-juice.shop/admin/",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:34.812066Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "medium",
+    "url": "https://demo.owasp-juice.shop/_admin/",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:35.770518Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "medium",
+    "url": "https://demo.owasp-juice.shop/.vscode/",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  },
+  {
+    "time": "2025-11-17T17:34:40.794293Z",
+    "type": "Exposição de arquivos/diretórios",
+    "severity": "medium",
+    "url": "https://demo.owasp-juice.shop/.idea/",
+    "param": "",
+    "evidence": "200",
+    "owasp": "A05",
+    "owasp_desc": "Security Misconfiguration: insecure default configs, open buckets, missing headers, verbose errors.",
+    "tool": "core",
+    "solution": "Remover artefatos (.git, .env, backups); negar listagem de diretórios; separar segredos do repositório; revisar regras do servidor/cdn; validar políticas de cache/CDN (private, no-store)."
+  }
+]

@@ -1,0 +1,91 @@
+name: security_scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Target URL to scan"
+        required: true
+        default: "https://demo.owasp-juice.shop"
+      time_budget:
+        description: "Global scan budget (seconds, 0 = no limit)"
+        required: true
+        default: "180"
+      nikto_time:
+        description: "Nikto maxtime (seconds)"
+        required: true
+        default: "50"
+      nmap_time:
+        description: "Nmap maxtime (seconds)"
+        required: true
+        default: "45"
+
+concurrency:
+  group: security-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    # 👉 usamos o runner self-hosted "virgínia"
+    runs-on: [self-hosted, virginia]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run WebSec scan (não quebra o job)
+        continue-on-error: true
+        env:
+          TARGET_URL: ${{ inputs.target_url || 'https://demo.owasp-juice.shop' }}
+          BUDGET:     ${{ inputs.time_budget || '180' }}
+          NIKTO_T:    ${{ inputs.nikto_time  || '50'  }}
+          NMAP_T:     ${{ inputs.nmap_time   || '45'  }}
+        run: |
+          . .venv/bin/activate
+          mkdir -p out-ci
+          python -m src.scanner \
+            -t "${TARGET_URL}" \
+            --crawl-depth 0 --max-pages 15 \
+            --request-timeout 4 \
+            --nikto --nikto-maxtime "${NIKTO_T}" \
+            --nmap  --nmap-maxtime "${NMAP_T}" \
+            --max-scan-seconds "${BUDGET}" \
+            --fancy-progress \
+            --out out-ci
+
+      - name: Upload reports (artifacts)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: websec-reports
+          path: out-ci/**
+          retention-days: 7
+
+      # Política de falha: só HIGH quebra o job
+      - name: Fail on HIGH only
+        run: |
+          . .venv/bin/activate
+          python - << 'PY'
+          import json, glob, sys
+          try:
+              js = json.load(open(glob.glob('out-ci/report.json')[0]))
+          except Exception:
+              # Se não gerou report.json, considera falha
+              sys.exit(2)
+          sev = {"low":0,"medium":1,"high":2}
+          worst = 0
+          for f in js.get("findings", []):
+              worst = max(worst, sev.get(f.get("severity","low").lower(),0))
+          sys.exit(2 if worst == 2 else 0)
+          PY
