@@ -258,7 +258,6 @@ Para validar a ferramenta, adotamos a seguinte metodologia:
   - `--crawl-depth` para aumentar/diminuir o número de URLs/parametros explorados.
   - `--request-timeout` e `--max-scan-seconds` para balancear tempo de execução vs. cobertura.
 - **Validação**
-  - Conferência manual de alguns achados comparando com vulnerabilidades conhecidas da Juice Shop / testphp.vulnweb.
   - Execução dos testes unitários em `src/tests/test_detectors.py` para garantir que os detectores básicos (XSS/SQLi/etc.) continuam funcionando após mudanças no código.
 
 ## Sugestões de mitigação 
