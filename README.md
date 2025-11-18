@@ -152,10 +152,10 @@ python -m src.scanner -t https://demo.owasp-juice.shop --nikto --nmap --json-std
 python -m src.scanner \
   -t https://demo.owasp-juice.shop \
   --crawl-depth 1 \
-  --nikto --nikto-maxtime 300 \
+  --nikto \
   --nmap \
   --fancy-progress \
-  --max-scan-seconds 300 \
+  --max-scan-seconds 0 \
   --request-timeout 8 \
   --out out
 ```
@@ -296,3 +296,5 @@ Cada vulnerabilidade reportada traz um campo `solution` com recomendações espe
 ![fluxograma](docs/flowchart.png)
 
 # Link para vídeo
+
+[link](https://youtu.be/filN3SmG7WY)
